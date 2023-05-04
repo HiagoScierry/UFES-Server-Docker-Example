@@ -16,11 +16,8 @@ services:
     build:
       context: ./NodeServer/
       dockerfile: Dockerfile.prd
-    networks:
-      - node-net
     ports:
       - "3000:3000"
-    command: npm run prod
     healthcheck:
       test: ["CMD", "nc", "-vz", "localhost:3000"]
       interval: 30s
@@ -31,10 +28,8 @@ services:
     build:
       context: ./NodeServer/
       dockerfile: Dockerfile.dev
-    networks:
-      - node-net
     ports:
-      - "3001:${NODE_PORT}"
+      - "3001:3333"
       - "5860:5860" #Debug
     volumes:
       - ./:/home/node
@@ -42,7 +37,3 @@ services:
 
 volumes:
   db-data:
-
-networks:
-  node-net:
-    driver: bridge
