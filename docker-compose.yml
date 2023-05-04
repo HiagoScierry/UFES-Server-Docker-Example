@@ -1,7 +1,8 @@
-version: "3.5"
+version: "3.7"
+
 services:
   database:
-    env_file: .env
+    env_file: ./Database/.env
     build:
       context: ./Database/
       dockerfile: Dockerfile
@@ -11,5 +12,37 @@ services:
     volumes:
       - db-data:/var/lib/mysql
 
+  node:
+    build:
+      context: ./NodeServer/
+      dockerfile: Dockerfile.prd
+    networks:
+      - node-net
+    ports:
+      - "3000:3000"
+    command: npm run prod
+    healthcheck:
+      test: ["CMD", "nc", "-vz", "localhost:3000"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  node-dev:
+    build:
+      context: ./NodeServer/
+      dockerfile: Dockerfile.dev
+    networks:
+      - node-net
+    ports:
+      - "3001:${NODE_PORT}"
+      - "5860:5860" #Debug
+    volumes:
+      - ./:/home/node
+    # command: sh -c "npm install && npm run dev"
+
 volumes:
   db-data:
+
+networks:
+  node-net:
+    driver: bridge
